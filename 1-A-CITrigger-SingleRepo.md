@@ -1,8 +1,7 @@
 
-
 # Azure Pipelines CI Trigger
 
-A brief description of what this project does and who it's for
+
 
 ## Single Repo CI Triggers
 
@@ -41,7 +40,69 @@ trigger:
       - refs/tags/{othertagname}
 ```
 
+#### Batching CI Runs
+While teams are always developing and committing frequently and parallelly,setting batch property to true helps in batching the CI runs.
 
+If we set batch to true, when a pipeline is running, the system waits until the run is completed, then starts another run with all changes that have not yet been built.
+
+In ideal scenario for such cases, it is recommended that we split our CI/CD process into two pipelines - one for build (with batching) and one for deployments so that one stage is completed,the other batch one doesn't conflict with previous CI run.
+
+```javascript
+# specific branch build with batching
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+```
+
+#### Path based CI Triggers 
+We can specify file paths to include or exclude.
+
+
+```javascript
+trigger:
+  branches:
+    include:
+    - master
+    - releases/*
+  paths:
+    include:
+    - docs
+    exclude:
+    - docs/README.md
+```
+
+#### CI Triggers for specific tags
+We can directly specify tags to include or exclude:
+```javascript
+trigger:
+  tags:
+    include:
+    - v2.*
+    exclude:
+    - v2.0
+```
+
+### Skipping CI 
+
+#### Disabling the CI trigger
+ ```javascript
+# A pipeline with no CI trigger
+trigger: none
+```
+
+#### Skipping CI for individual commits
+For Azure Pipelines to skip running a pipeline that a commit would normally trigger,Just include below message in the commit message.
+
+ ```javascript
+[skip ci] or [ci skip]
+skip-checks: true or skip-checks:true
+[skip azurepipelines] or [azurepipelines skip]
+[skip azpipelines] or [azpipelines skip]
+[skip azp] or [azp skip]
+***NO_CI***
+```
 
 
 
@@ -51,3 +112,5 @@ trigger:
 -You cannot use variables in triggers, as variables are evaluated at runtime (after the trigger has fired).
 
 -If you use templates to author YAML files, then you can only specify triggers in the main YAML file for the pipeline. You cannot specify triggers in the template files.
+
+-You cannot use variables in paths, as variables are evaluated at runtime (after the trigger has fired).
